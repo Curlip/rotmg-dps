@@ -1,0 +1,151 @@
+/*POSITIONING*/
+
+#wrapper{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+}
+
+#view {
+    height: 100%;
+}
+
+/*STYLE*/
+
+.itemtag, .item, .graphControl {
+    background-color: #F6F6F6;
+    border: 1px solid #C5C5C5;
+    border-radius: 3px;
+
+    text-align: left;
+    padding: 5px;
+    margin: 2px;
+}
+
+/*LIST*/
+
+#search-wrapper {
+    height: 50px;
+    width: 250px;
+    background-color: #e9e9e9;
+    border: solid 1px #cccccc;
+    border-top: none;
+    border-right: none;
+    right: 0;
+    position: fixed;
+}
+
+#search {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#list {
+    background-color: #ddd;
+    border-left: solid 1px #ccc;
+    overflow-y:scroll;
+
+    float: right;
+    text-align: center;
+    margin-top: 50px;
+    height: calc(100% - 50px);
+    width: 250px;
+}
+
+#list > .itemtag {
+    margin: 2px;
+}
+
+#list > .itemtag:hover {
+    background-color: #ededed;
+    border-color: #cccccc;
+}
+
+#list > .itemtag.selected {
+    background-color: #007FFF;
+    border: solid 1px #003eff;
+}
+
+/*TABS*/
+
+#tab {
+    height: 100%;
+    overflow: hidden;
+}
+
+#tabcontrols {
+    background-color: #e9e9e9;
+    border-bottom: solid 1px #dddddd;
+    top: 0;
+    width: 100%;
+    list-style: none;
+    height: 50px;
+}
+
+.ui-tabs-tab {
+    background-color: #F6F6F6;
+    border: 1px solid #C5C5C5;
+
+    border-bottom: none !important;
+
+    text-align: center;
+    outline: 0;
+
+    border-radius: 10px 10px 0 0;
+    margin: 0 -5px;
+    height: 40px;
+
+    display: inline-block;
+    margin-top: 9px;
+    min-width: 70px;
+}
+
+.ui-tabs-anchor {
+    line-height: 40px;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+    outline: 0;
+}
+
+.ui-tabs-active {
+    background-color: #007FFF;
+    border: solid 1px #003eff;
+}
+
+/* INFO TAB */
+
+#info {
+    width: calc(100% - 250px);
+    height: 100%;
+}
+
+#info-wrapper * {
+    width: 600px;
+    padding: 2px;
+    margin: 10px auto;
+}
+
+#info-wrapper h1 {
+    border-bottom: solid 1px lightgrey;
+    text-align: center;
+    padding: 2px;
+    font-size: 36px;
+}
+
+#info-wrapper h3 {
+    border-bottom: solid 1px lightgrey;
+    text-align: center;
+    padding: 2px;
+    font-size: 28px;
+}
+
+ul {
+    list-style: circle;
+}
