@@ -27,7 +27,7 @@ loaders.push(function() {
     $("#scale").val(500);
 
     // Recalculate the Graph if any input changes
-    $("#dps-details").on("input", ".graphControl", function() {
+    $("#dps-details").on("change", ".graphControl", function() {
         recalc();
         redraw();
     })
@@ -66,6 +66,19 @@ handlers.push(function(item, selected){
                 + "<span>" + item.id + "</span>" +
                 "<select class=\"chars\">    \
                 </select>    \
+                <div class=\"modifiers\">    \
+                <input class=\"modifier berzerk\" type=\"checkbox\" />    \
+                <label for=\"berzerk\">Berzerk</label>  \
+                <input class=\"modifier damaging\" type=\"checkbox\" />    \
+                <label for=\"damaging\">Damaging</label>  \
+                <input class=\"modifier daze\" type=\"checkbox\" />    \
+                <label for=\"daze\">Dazed</label>  \
+                <input class=\"modifier weak\" type=\"checkbox\" />    \
+                <label for=\"weak\">Weak</label>  \
+                <input class=\"modifier curse\" type=\"checkbox\" />    \
+                <label for=\"weak\">Cursed</label>  \
+                </div>    \
+                \
                 <input class=\"graphColor\" type=\"color\" value=\"#" + Math.floor(Math.random() * 16777215).toString(16) + "\" />" +
                 /*<div class=\"stats-wrapper\">   \
                     <div class=\"atk-in\">ATK Boost:<input class=\"atk\" type=\"number\" value=\"0\"></input></div>  \
@@ -102,30 +115,53 @@ function recalc() {
         var curve = [];
         var item = getItemByType($(this).attr("itemid"))
         var proj = item.Projectile;
-        var shots = (item.NumProjectiles ? item.NumProjectiles : 1);
-        var rof = item.RateOfFire;
-        var atk = 0;
-        var dex = 0;
 
         if(proj == undefined) return;
 
-        curve["color"] = $(".graphControl[itemid=" + item.type + "] .graphColor").val();
+        curve["color"] = $(this).find(".graphColor").val();
 
         var charName = $(this).find(".chars").val();
         var char = chars.filter(function(obj) {
             return obj.id == charName;
         })[0];
 
-        atk = parseInt(char.Attack.max) /*+ parseInt($(this).find(".atk").val());*/
-        dex = parseInt(char.Dexterity.max) /*+ parseInt($(this).find(".dex").val());*/
-
         for (var x = 0; x < 201; x++) {
             var aps;
-            var dps;
+            var baseDamage;
+            var shots;
+            var damageMod;
+            var atk;
+            var dex;
+            var rof;
 
-            aps = (dex ? (1.5 + (6.5 * (dex / 75))) * rof : 1)
-            dps = calcDPS(parseInt(proj.MaxDamage), parseInt(proj.MinDamage), shots, (proj.ArmorPiercing != "" ? x : 0), atk, aps);
-            curve[x] = dps;
+            rof = item.RateOfFire;
+            atk = parseInt(char.Attack.max);
+            dex = parseInt(char.Dexterity.max);
+
+            var weak = $(this).find(".weak").is(":checked");
+            var daze = $(this).find(".daze").is(":checked");
+            var berzerk = $(this).find(".berzerk").is(":checked");
+            var damaging = $(this).find(".damaging").is(":checked");
+            var curse = $(this).find(".curse").is(":checked");
+
+            if(weak) atk = 0;
+            if(daze) dex = 0;
+
+            aps = calcAPS(dex, rof)
+            damageMod = calcDamageMod(atk)
+
+            if(berzerk && !daze) aps *= 1.5;
+            if(damaging && !weak) damageMod *= 1.5;
+
+
+            baseDamage = calcBaseDamage(parseInt(proj.MaxDamage), parseInt(proj.MinDamage), (proj.ArmorPiercing != "" ? x : 0), damageMod);
+            shots = (item.NumProjectiles ? item.NumProjectiles : 1);
+
+            var dps = aps*baseDamage*shots;
+
+            if(curse) dps *= 1.2;
+
+            curve[x] = Math.round(dps);
         }
 
         dpsCurves[i] = curve;
@@ -211,7 +247,6 @@ function redraw() {
 
         $(this).find(".dps-data").css("background-color", $(this).find(".graphColor").val());
         var rgb = $(this).find(".dps-data").css("background-color").match(/\d+/g);
-        console.log(rgb);
 
         if(shouldUseWhiteText(rgb[0], rgb[1], rgb[2])){
             $(this).find(".dps-data span").css("color", "#D9D9D9");
@@ -230,14 +265,21 @@ function shouldUseWhiteText(r,g,b){
 
 
 // Calculates DPS from Damage Range, Shot Number, Enemy DEF, and player ATK / DEX.
-function calcDPS(max, min, shots, def, atk, aps) {
+function calcAPS(dex, rof){
+    return (1.5 + (6.5 * (dex / 75))) * rof;
+}
+
+function calcDamageMod(atk){
+    return 0.5 + (atk / 50)
+}
+
+function calcBaseDamage(max, min, def, mod) {
     var damageRange = [];
-    var damageModifier = (atk ? (0.5 + atk) / 50 : 1)
     var baseDamage = 0;
 
     if(max != min){
         for (var i = min; i < max; i++) {
-            var dam = i * damageModifier;
+            var dam = i * mod;
             var damLessDef = dam - def;
 
             if (damLessDef < i * 0.15) {
@@ -251,8 +293,8 @@ function calcDPS(max, min, shots, def, atk, aps) {
             baseDamage += damageRange[i] / (max - min);
         }
     }else{
-        baseDamage = (max*damageModifier)-def;
+        baseDamage = (max*mod)-def;
     }
 
-    return Math.round(baseDamage * shots * aps)
+    return baseDamage;
 }
