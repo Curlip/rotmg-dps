@@ -61,7 +61,7 @@ handlers.push(function(item, selected){
 
         if(char.length == 0){ return; }
 
-        var control = $("#dps-details").append(" \
+        $("#dps-details").append(" \
             <div class=\"graphControl\" itemid=\"" + item.type + "\">"
                 + "<span>" + item.id + "</span>" +
                 "<select class=\"chars\">    \
@@ -74,9 +74,8 @@ handlers.push(function(item, selected){
                 "<div class=\"dps-data\"></div>   \
             </div>")
 
-
         for(var i = 0; i < char.length; i++){
-            control.find(".chars").append("<option>" + char[i].id + "</option>")
+            $(".graphControl[itemid=\"" + item.type + "\"] .chars").append("<option>" + char[i].id + "</option>")
         }
 
         recalc();

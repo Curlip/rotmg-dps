@@ -84,3 +84,16 @@
 .atk-in *, .dex-in * {
     display: inline;
 }
+
+h4 {
+    color: #444;
+    margin: 0 auto;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.box {
+    padding: 10px 0;
+    margin: 10px 0;
+    border-bottom: solid 1px #ccc;
+}

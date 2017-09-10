@@ -58,16 +58,16 @@
     width: 250px;
 }
 
-#list > .itemtag {
+#list .itemtag {
     margin: 2px;
 }
 
-#list > .itemtag:hover {
+#list .itemtag:hover {
     background-color: #ededed;
     border-color: #cccccc;
 }
 
-#list > .itemtag.selected {
+#list .itemtag.selected {
     background-color: #007FFF;
     border: solid 1px #003eff;
 }

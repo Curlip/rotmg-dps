@@ -1,7 +1,24 @@
 function loadUI() {
     /* Loop items and add them to the list */
     loopItems(function(item) {
-        $("#list").append("<div class=\"itemtag\" itemid=\"" + item.type + "\">" + item.id + "</div>")
+        if(!$(".box#slot" + item.SlotType).length){
+            $("#list").append("   \
+                <div class=\"box\" id=\"slot" + item.SlotType + "\">   \
+                <h4>Slot " + item.SlotType + "</h4>   \
+                </div>   \
+            ")
+        }
+
+        $(".box#slot" + item.SlotType).append("<div class=\"itemtag\" itemid=\"" + item.type + "\">" + item.id + "</div>")
+    });
+
+    //Sort Boxes by slottype
+    $(".box").sort(function (a, b) {
+        return parseInt(a.id.substring(4)) - parseInt(b.id.substring(4));
+    }).each(function () {
+        var elem = $(this);
+        elem.remove();
+        $(elem).appendTo("#list");
     });
 
     /* When an item in the list is clicked add it to the DPS graph */
@@ -26,8 +43,19 @@ function loadUI() {
 }
 
 function filterList(selector){
+    $(".box").css("display", "block")
+
     $(".itemtag" + selector).show()
     $(".itemtag:not(" + selector + ")").hide()
+
+    $(".box").each(function(i, ele) {
+        //must remember header
+        if($(this).children(':visible').length > 1){
+            $(this).css("display", "block")
+        }else{
+            $(this).css("display", "none")
+        }
+    })
 }
 
 function filterListByFunc(func){
