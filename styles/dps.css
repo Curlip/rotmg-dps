@@ -92,12 +92,6 @@ h4 {
     margin-bottom: 10px;
 }
 
-.box {
-    padding: 10px 0;
-    margin: 10px 0;
-    border-bottom: solid 1px #ccc;
-}
-
 .modifier {
     display: inline;
     margin: 0;

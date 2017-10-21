@@ -149,3 +149,9 @@
 ul {
     list-style: circle;
 }
+
+.slottype {
+    padding: 10px 0;
+    margin: 10px 0;
+    border-bottom: solid 1px #ccc;
+}

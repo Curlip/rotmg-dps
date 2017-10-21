@@ -1,69 +1,165 @@
-function loadUI() {
-    /* Loop items and add them to the list */
-    loopItems(function(item) {
-        if(!$(".box#slot" + item.SlotType).length){
-            $("#list").append("   \
-                <div class=\"box\" id=\"slot" + item.SlotType + "\">   \
-                <h4>Slot " + item.SlotType + "</h4>   \
-                </div>   \
-            ")
+/*
+
+    ui.js
+
+    - Provides
+
+*/
+
+const UI = (function() {
+
+    DATA.onReady(function() {
+
+        //Loop over items and create buttons in list
+        for (var i = 0; i < DATA.items.length; i++) {
+            var item = DATA.items[i];
+
+            if (!$(".slottype#slot" + item.SlotType).length) {
+                $("#list").append("   \
+                    <div class=\"slottype\" id=\"slot" + item.SlotType + "\">   \
+                    <h4>Slot " + item.SlotType + "</h4>   \
+                    </div>   \
+                ")
+            }
+
+            $(".slottype#slot" + item.SlotType).append("<div class=\"itemtag\" itemid=\"" + item.type + "\">" + item.id + "</div>")
         }
 
-        $(".box#slot" + item.SlotType).append("<div class=\"itemtag\" itemid=\"" + item.type + "\">" + item.id + "</div>")
+        //Sort Boxes by slottype
+        $(".slottype").sort(function(a, b) {
+            return parseInt(a.id.substring(4)) - parseInt(b.id.substring(4));
+        }).each(function() {
+            var elem = $(this);
+            elem.remove();
+            $(elem).appendTo("#list");
+        });
+
+        /* On selection change */
+        $("#list").on("click", ".itemtag", function() {
+            var ele = $(this)
+            var item = $.grep(DATA.items, function(e) {
+                return e.type == ele.attr("itemid")
+            })[0];
+            $(this).toggleClass("selected")
+            trigger("selectionChange", [item, $(this).hasClass("selected")]);
+        });
+
+        // On search change
+        $('#search').on('input propertychange paste', function() {
+            var search = ":Contains(" + $("input#search").val() + ")"
+            visFilters["search"] = search;
+            filter();
+        });
+
+        // Make view into tabs
+        $("#view").tabs({
+            active: 0,
+        });
     });
 
-    //Sort Boxes by slottype
-    $(".box").sort(function (a, b) {
-        return parseInt(a.id.substring(4)) - parseInt(b.id.substring(4));
-    }).each(function () {
-        var elem = $(this);
-        elem.remove();
-        $(elem).appendTo("#list");
+    $(document).ready(function() {
+        jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
+            return function(elem) {
+                return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+            };
+        });
     });
 
-    /* When an item in the list is clicked add it to the DPS graph */
-    $("#list").on("click", ".itemtag", function() {
-        var item = getItemByType($(this).attr("itemid"));
-        $(this).toggleClass("selected")
 
-        //Notify Modules of selection change.
-        for(var i = 0; i < handlers.length; i++){
-            handlers[i](item, $(this).hasClass("selected"));
+    function setEnabledItemsFilter(filter) {
+        if (typeof filter == "function") {
+
+            $(".itemtag").each(function() {
+                $(this).removeClass("disabled")
+
+                if (!filter($(this))) {
+                    $(this).addClass("disabled")
+                }
+            })
+
+        } else {
+
+            $(".itemtag").each(function() {
+                $(this).removeClass("disabled")
+
+                if (!$(this).is(filter)) {
+                    $(this).addClass("disabled")
+                }
+            })
+
         }
-    });
+    }
 
-    /*  List Search Function
-        Make elements that match search display (as a block), then remove the elements that don't
-    */
-    $('#search').on('input propertychange paste', function() {
-        var search = ":Contains(" + $("input#search").val() + ")"
+    var visFilters = {};
 
-        filterList(search)
-    });
-}
+    function setVisibleItemsFilter(newfilter) {
+        visFilter["external"] = newfilter;
+        filter();
+    }
 
-function filterList(selector){
-    $(".box").css("display", "block")
+    function filter() {
+        $(".itemtag").each(function() {
+            var search = $(this).is(visFilters["search"])
+            var extern;
 
-    $(".itemtag" + selector).show()
-    $(".itemtag:not(" + selector + ")").hide()
 
-    $(".box").each(function(i, ele) {
-        //must remember header
-        if($(this).children(':visible').length > 1){
-            $(this).css("display", "block")
-        }else{
-            $(this).css("display", "none")
-        }
-    })
-}
+            if (typeof visFilters["external"] == "function") {
+                extern = visFilters["external"]($(this));
+            } else {
+                extern = $(this).is(visFilters["external"]);
+            }
 
-function filterListByFunc(func){
-    $(".itemtag").each(function() {
-        if(getItemByType($(this).attr("itemid"))){
             $(this).show();
-        }else{
-            $(this).hide();
+
+            if (!(search && external)) {
+                $(this).hide();
+            }
+        })
+
+        $(".slottype").each(function(i, ele) {
+            $(this).show();
+            if (!$(this).children(':visible').length > 1) {
+                $(this).hide();
+            }
+        })
+    }
+
+    // Handle Events
+    var eventListeners = {}
+
+    function addEventListener(eve, func) {
+        if (!eventListeners[eve]) {
+            eventListeners[eve] = []
         }
-    })
-}
+
+        eventListeners[eve].push(func);
+    }
+
+    function trigger(eve, args) {
+        if (!eventListeners[eve]) {
+            return;
+        }
+
+        for (var i = 0; i < eventListeners[eve].length; i++) {
+            eventListeners[eve][i].apply(this, args);
+        }
+    }
+
+
+
+    return {
+        //List
+        setVisibleItemsFilter: setVisibleItemsFilter, //Accepts Function or Selector
+        setEnabledItemsFilter: setEnabledItemsFilter, //Accepts Function or Selector
+
+        //Tabs
+        //setOpenTab: setOpenTab,    /* TODO */
+        //makeTab: makeTab,          /* TODO */
+
+        //Events
+        on: addEventListener // on([event], [function])
+    }
+
+
+
+}())

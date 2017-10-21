@@ -1,76 +1,59 @@
-var URL1 = "https://static.drips.pw/rotmg/production/current";
-var main = [];
-var chars = [];
+/*
 
-var handlers = [];
-var loaders = [];
+    main.js
 
-$(document).ready(function() {
-    jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
-        return function(elem) {
-            return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-        };
-    });
+    - Load JSON for xml upon the loading of the page.
+    - Handle send 'loaded'
 
-    if(getURLParameter("mode") == "testing"){
-        URL1 = "https://static.drips.pw/rotmg/testing/current"
+*/
+
+const DATA = (function(){
+
+    var URL1 = (getURLParameter("mode") == "testing" ? "https://static.drips.pw/rotmg/testing/current" : "https://static.drips.pw/rotmg/production/current");
+    var items = [];
+    var chars = [];
+
+    var readyListener = [];
+
+    function addReadyListener(func){
+        readyListener.push(func);
     }
 
-    fetchItems(URL1 + "/json/Objects.json").then(function(data) {
-        main = data.items;
-        chars = data.chars;
-
-        loadUI();
-
-        for(var i = 0; i < loaders.length; i++){
-            loaders[i]();
-        }
-
-        $("#view").tabs({
-            active: 0,
+    $(document).ready(function() {
+        jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
+            return function(elem) {
+                return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+            };
         });
-    });
-});
 
-function fetchItems(URL) {
-    return new Promise(function(resolve, reject) {
-        var itemst = []
-        var charst = []
-
-        var data = {}
-
-        $.getJSON(URL, function(data) {
-            for (i = 0; i < data.Object.length; i++) {
-                if (data.Object[i].Class == "Equipment") {
-                    itemst.push(data.Object[i]);
+        $.getJSON(URL1 + "/json/Objects.json", function(res) {
+            // Load Character and Item Data into 'chars' and 'main'
+            for (i = 0; i < res.Object.length; i++) {
+                if (res.Object[i].Class == "Equipment") {
+                    items.push(res.Object[i]);
                 }
-                if (data.Object[i].Class == "Player") {
-                    charst.push(data.Object[i]);
+                if (res.Object[i].Class == "Player") {
+                    chars.push(res.Object[i]);
                 }
             }
 
-            data.items = itemst;
-            data.chars = charst;
-
-            resolve(data);
+            // Run functions waitinf for load
+            for(var i = 0; i<readyListener.length; i++){
+                readyListener[i]();
+            }
         });
     });
-}
 
-function getURLParameter(name) {
-  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
-}
-
-/* Helper Functions */
-
-function loopItems(func) {
-    for (var i = 0; i < main.length; i++) {
-        func(main[i]);
+    function getURLParameter(name) {
+      return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     }
-}
 
-function getItemByType(id) {
-    return main.filter(function(obj) {
-        return obj.type === id;
-    })[0];
-}
+
+
+    return {
+        items: items,                       
+        chars: chars,
+        onReady: addReadyListener
+    }
+
+}());

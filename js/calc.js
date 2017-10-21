@@ -6,124 +6,119 @@ By Curlip
 
 */
 
-var c;
-var canv;
-var scale;
-var dpsCurves = [];
-var selectedX;
-var lock = false;
+const DPS_CALC = (function() {
 
-loaders.push(function() {
-    $("#tabcontrols").prepend("<li><a href=\"#dps\">DPS</a></li>");
+    var c;
+    var canv;
+    var dpsCurves = [];
+    var selectedX;
+    var lock = false;
 
-    $("#view").append("\
-    <div id=\"dps\" class=\"tab\">    \
-        <div id=\"graph-wrapper\">     \
-            <canvas width=\"600\" height=\"500\" id=\"graph\"></canvas>    \
-        </div>    \
-        <div id=\"dps-details\"></div>    \
-    </div>")
+    $(document).ready(function() {
+        $("#tabcontrols").prepend("<li><a href=\"#dps\">DPS</a></li>");
 
-    $("#scale").val(500);
+        $("#view").append("\
+        <div id=\"dps\" class=\"tab\">    \
+            <div id=\"graph-wrapper\">     \
+                <canvas width=\"600\" height=\"500\" id=\"graph\"></canvas>    \
+            </div>    \
+            <div id=\"dps-details\"></div>    \
+        </div>")
 
-    // Recalculate the Graph if any input changes
-    $("#dps-details").on("change", ".graphControl", function() {
-        recalc();
-        redraw();
+
+
+        c = document.getElementById("graph");
+        canv = c.getContext("2d");
+
+        // Recalculate curve if control is modified
+        $("#dps-details").on("change", ".graphControl", function() {
+            dpsCurves[$(this).index()] = calculateCurveFromControl(this);
+            updateDisplay(canv, dpsCurves, selectedX, lock);
+        })
+
+        //Move selection bar on graph.
+        $("#graph").on("mousemove", function(e) {
+            if (!lock) {
+                var rect = c.getBoundingClientRect();
+                selectedX = Math.round(e.clientX - rect.left),
+                    updateDisplay(canv, dpsCurves, selectedX, lock);
+            }
+        })
+
+        //Lock selection bar on click
+        $("#graph").on("click", function(e) {
+            lock = !lock;
+            updateDisplay(canv, dpsCurves, selectedX, lock);
+        })
+
+        drawLines(canv);
+        drawLabels(canv, 500)
     })
 
-    c = document.getElementById("graph");
-    canv = c.getContext("2d");
+    UI.on("selectionChange", function(item, selected) {
+        if (selected) {
+            var char = $.grep(DATA.chars, function(obj) {
+                return obj.SlotTypes.split(",")[0] == item.SlotType;
+            });
 
-    //Move selection bar on graph.
-    $("#graph").on( "mousemove", function(e){
-        if(!lock){
-            var rect = c.getBoundingClientRect();
-            selectedX = Math.round(e.clientX - rect.left),
-            redraw();
-        }
-    })
+            if (char.length == 0) {
+                return;
+            }
 
-    //Lock selection bar on click
-    $("#graph").on( "click", function(e){
-        lock = !lock;
-        redraw();
-    })
-
-    redraw();
-})
-
-handlers.push(function(item, selected){
-    if(selected){
-        var char = chars.filter(function(obj) {
-            return obj.SlotTypes.split(",")[0] == item.SlotType;
-        });
-
-        if(char.length == 0){ return; }
-
-        $("#dps-details").append(" \
-            <div class=\"graphControl\" itemid=\"" + item.type + "\">"
-                + "<span>" + item.id + "</span>" +
+            $("#dps-details").append(" \
+                <div class=\"graphControl\" itemid=\"" + item.type + "\">" +
+                "<span>" + item.id + "</span>" +
                 "<select class=\"chars\">    \
-                </select>    \
-                <div class=\"modifiers\">    \
-                <input class=\"modifier berzerk\" type=\"checkbox\" />    \
-                <label for=\"berzerk\">Berzerk</label>  \
-                <input class=\"modifier damaging\" type=\"checkbox\" />    \
-                <label for=\"damaging\">Damaging</label>  \
-                <input class=\"modifier daze\" type=\"checkbox\" />    \
-                <label for=\"daze\">Dazed</label>  \
-                <input class=\"modifier weak\" type=\"checkbox\" />    \
-                <label for=\"weak\">Weak</label>  \
-                <input class=\"modifier curse\" type=\"checkbox\" />    \
-                <label for=\"weak\">Cursed</label>  \
-                </div>    \
-                \
-                <input class=\"graphColor\" type=\"color\" value=\"#" + Math.floor(Math.random() * 16777215).toString(16) + "\" />" +
+                    </select>    \
+                    <div class=\"modifiers\">    \
+                    <input class=\"modifier berzerk\" type=\"checkbox\" />    \
+                    <label for=\"berzerk\">Berzerk</label>  \
+                    <input class=\"modifier damaging\" type=\"checkbox\" />    \
+                    <label for=\"damaging\">Damaging</label>  \
+                    <input class=\"modifier daze\" type=\"checkbox\" />    \
+                    <label for=\"daze\">Dazed</label>  \
+                    <input class=\"modifier weak\" type=\"checkbox\" />    \
+                    <label for=\"weak\">Weak</label>  \
+                    <input class=\"modifier curse\" type=\"checkbox\" />    \
+                    <label for=\"weak\">Cursed</label>  \
+                    </div>    \
+                    \
+                    <input class=\"graphColor\" type=\"color\" value=\"#" + Math.floor(Math.random() * 16777215).toString(16) + "\" />" +
                 /*<div class=\"stats-wrapper\">   \
                     <div class=\"atk-in\">ATK Boost:<input class=\"atk\" type=\"number\" value=\"0\"></input></div>  \
                     <div class=\"dex-in\">DEX Boost:<input class=\"dex\" type=\"number\" value=\"0\"></input></div>  \
                 </div>    \*/
                 "<div class=\"dps-data\"></div>   \
-            </div>")
+                </div>")
 
-        for(var i = 0; i < char.length; i++){
-            $(".graphControl[itemid=\"" + item.type + "\"] .chars").append("<option>" + char[i].id + "</option>")
+            for (var i = 0; i < char.length; i++) {
+                $(".graphControl[itemid=\"" + item.type + "\"] .chars").append("<option>" + char[i].id + "</option>")
+            }
+
+            $(".graphControl[itemid=\"" + item.type + "\"]").each(function() {
+                dpsCurves.push(calculateCurveFromControl(this))
+            })
+
+            updateDisplay(canv, dpsCurves, selectedX, lock);
+        } else {
+            $(".graphControl[itemid=\"" + item.type + "\"]").hide("slide", {
+                direction: "up"
+            }, function() {
+                this.remove();
+
+                dpsCurves.splice($(this).index(),1)
+                updateDisplay(canv, dpsCurves, selectedX, lock);
+            });
         }
-
-        recalc();
-        redraw();
-    }else{
-        $(".graphControl[itemid=\"" + item.type + "\"]").hide("slide",{ direction: "up" }, function(){
-            this.remove();
-            recalc();
-            redraw();
-        });
-    }
-})
+    })
 
 
-// END HANDLERS
+    // END HANDLERS
 
-//Recalculate all DPS Curves
-function recalc() {
-    var i = 0;
-    dpsCurves = [];
-
-    // Find Canvas, and clear it
-    $(".graphControl").each(function() {
+    function calculateCurve(item, char, weak, daze, berzerk, damaging, curse){
         var curve = [];
-        var item = getItemByType($(this).attr("itemid"))
+
         var proj = item.Projectile;
-
-        if(proj == undefined) return;
-
-        curve["color"] = $(this).find(".graphColor").val();
-
-        var charName = $(this).find(".chars").val();
-        var char = chars.filter(function(obj) {
-            return obj.id == charName;
-        })[0];
 
         for (var x = 0; x < 201; x++) {
             var aps;
@@ -138,163 +133,218 @@ function recalc() {
             atk = parseInt(char.Attack.max);
             dex = parseInt(char.Dexterity.max);
 
-            var weak = $(this).find(".weak").is(":checked");
-            var daze = $(this).find(".daze").is(":checked");
-            var berzerk = $(this).find(".berzerk").is(":checked");
-            var damaging = $(this).find(".damaging").is(":checked");
-            var curse = $(this).find(".curse").is(":checked");
-
-            if(weak) atk = 0;
-            if(daze) dex = 0;
+            if (weak) atk = 0;
+            if (daze) dex = 0;
 
             aps = calcAPS(dex, rof)
-            damageMod = calcDamageMod(atk)
+            damageMod = calcDamMod(atk)
 
-            if(berzerk && !daze) aps *= 1.5;
-            if(damaging && !weak) damageMod *= 1.5;
+            if (berzerk && !daze) aps *= 1.5;
+            if (damaging && !weak) damageMod *= 1.5;
 
 
-            baseDamage = calcBaseDamage(parseInt(proj.MaxDamage), parseInt(proj.MinDamage), (proj.ArmorPiercing != "" ? x : 0), damageMod);
+            baseDamage = calcShotDamage(
+                parseInt(proj.MaxDamage),
+                parseInt(proj.MinDamage),
+                (proj.ArmorPiercing != "" ? x : 0),
+                damageMod
+            );
+
             shots = (item.NumProjectiles ? item.NumProjectiles : 1);
 
-            var dps = aps*baseDamage*shots;
-
-            if(curse) dps *= 1.2;
+            var dps = aps * baseDamage * shots;
+            if (curse) dps *= 1.2;
 
             curve[x] = Math.round(dps);
         }
 
-        dpsCurves[i] = curve;
-        i++;
-    })
-}
+        return curve;
+    }
 
-//Redraws the Graph / Outputs DPS
-function redraw() {
-    var def;
+    function calculateCurveFromControl(control){
+        var item = $.grep(DATA.items, function(e) {
+            return e.type == $(control).attr("itemid")
+        })[0];
 
-    canv.clearRect(0, 0, c.width, c.height);
-    scale = 500;
+        var weak = $(control).find(".weak").is(":checked");
+        var daze = $(control).find(".daze").is(":checked");
+        var berzerk = $(control).find(".berzerk").is(":checked");
+        var damaging = $(control).find(".damaging").is(":checked");
+        var curse = $(control).find(".curse").is(":checked");
 
-    // Run through all DPS curves to draw and calculate a scale
-    for (var j = 0; j < dpsCurves.length; j++) {
-        for (var k = 0; k < dpsCurves[j].length; k++) {
-            if (dpsCurves[j][k] > scale) {
-                scale = Math.round((dpsCurves[j][k] + dpsCurves[j][k] / 10) /100)*100;
+        var charName = $(control).find(".chars").val();
+        var char = DATA.chars.filter(function(obj) {
+            return obj.id == charName;
+        })[0];
+
+        var curve = calculateCurve(item, char, weak, daze, berzerk, damaging, curse);
+        curve["color"] = $(control).find(".graphColor").val();
+
+        return curve;
+    }
+
+    //Recalculate all DPS Curves
+    function recalculateAllCurves() {
+        var i = 0;
+        dpsCurves = [];
+
+        // Find Canvas, and clear it
+        $(".graphControl").each(function() {
+            dpsCurves.push(calculateCurveFromControl(this));
+        })
+    }
+
+    function calculateScale(curves){
+        var scale = 500;
+
+        // Run through all DPS curves to draw and calculate a scale
+        for (var j = 0; j < curves.length; j++) {
+            for (var k = 0; k < curves[j].length; k++) {
+                if (curves[j][k] > scale) {
+                    scale = Math.round((curves[j][k] + curves[j][k] / 10) / 100) * 100;
+                }
             }
         }
+
+        return scale;
     }
 
-    // Draw Lines on Graph
-    for(var i = 0; i < 4; i++){
-        canv.strokeStyle = "rgba(100,100,100,0.5)";
-        canv.lineWidth = 1
+    function drawLines(canv){
+        // Draw Lines on Graph
+        for (var i = 0; i < 4; i++) {
+            canv.strokeStyle = "rgba(100,100,100,0.5)";
+            canv.lineWidth = 1
 
-        var j = 4 - i;
+            var j = 4 - i;
 
-        canv.beginPath();
-        canv.moveTo(0, j*100);
-        canv.lineTo(601, j*100);
-        canv.stroke();
+            canv.beginPath();
+            canv.moveTo(0, j * 100);
+            canv.lineTo(601, j * 100);
+            canv.stroke();
+        }
     }
 
-    // Draw DPS curves to the graph.
-    for (var j = 0; j < dpsCurves.length; j++) {
-        canv.strokeStyle = dpsCurves[j]["color"];
-        canv.lineWidth = 2
+    function drawCurves(canv, curves, scale){
+        // Draw DPS curves to the graph.
+        for (var j = 0; j < curves.length; j++) {
+            canv.strokeStyle = curves[j]["color"];
+            canv.lineWidth = 2
 
-        canv.beginPath();
+            canv.beginPath();
 
-        for (var x = 0; x < dpsCurves[j].length; x++) {
-            y = 500 - (dpsCurves[j][x] / (scale / 500));
+            for (var x = 0; x < curves[j].length; x++) {
+                y = 500 - (curves[j][x] / (scale / 500));
 
-            if (x === 0) {
-                canv.moveTo(x * 3, y);
+                if (x === 0) {
+                    canv.moveTo(x * 3, y);
+                }
+
+                canv.lineTo(x * 3, y);
             }
 
-            canv.lineTo(x * 3, y);
+            canv.stroke();
         }
-
-        canv.stroke();
     }
 
-    //Label Graph Lines
-    for(var i = 0; i < 4; i++){
-        canv.fillStyle = "rgba(100,100,100,0.5)";
-        canv.font = "13px Arial";
+    function drawLabels(canv, scale){
+        //Label Graph Lines
+        for (var i = 0; i < 4; i++) {
+            canv.fillStyle = "rgba(100,100,100,0.5)";
+            canv.font = "13px Arial";
 
-        var j = 4 - i;
-        var y = j*100;
-        var name = Math.round((scale / 5) * (i+1))
-        var textWidth = canv.measureText(name).width
+            var j = 4 - i;
+            var y = j * 100;
+            var name = Math.round((scale / 5) * (i + 1))
+            var textWidth = canv.measureText(name).width
 
-        canv.clearRect((600-textWidth)/2-1, y-6, textWidth+2, 12)
-        canv.fillText(name, (600-textWidth)/2, y+5)
+            canv.clearRect((600 - textWidth) / 2 - 1, y - 6, textWidth + 2, 12)
+            canv.fillText(name, (600 - textWidth) / 2, y + 5)
+        }
     }
 
-    // DPS OUTPUT
+    //Redraws the Graph / Outputs DPS
+    function updateDisplay(canv, curves, selection, locked) {
+        canv.clearRect(0, 0, c.width, c.height);
 
-    canv.fillStyle = "rgba(255,0,0,0.2)";
-    if(lock) { canv.fillStyle = "rgb(200,0,0)"; }
-    canv.fillRect(selectedX, 0, 2, 500)
-    def = Math.floor(selectedX/3);
-    if(!def){ def = 0; }
+        var scale = calculateScale(dpsCurves);
 
-    var i = 0;
-    $(".graphControl").each(function() {
-        var itemid = $(this).attr("itemid")
-        $(this).find(".dps-data").html("<span>" + dpsCurves[i][def]+"DPS <br/> @"+def+"Def </span>");
+        drawLines(canv);
+        drawCurves(canv, dpsCurves, scale);
+        drawLabels(canv, scale)
 
-        $(this).find(".dps-data").css("background-color", $(this).find(".graphColor").val());
-        var rgb = $(this).find(".dps-data").css("background-color").match(/\d+/g);
+        // DPS OUTPUT
 
-        if(shouldUseWhiteText(rgb[0], rgb[1], rgb[2])){
-            $(this).find(".dps-data span").css("color", "#D9D9D9");
-        }else {
-            $(this).find(".dps-data span").css("color", "#222");
-        }
+        canv.fillStyle = "rgba(255,0,0,0.2)";
+        if (locked) canv.fillStyle = "rgb(200,0,0)";
+        canv.fillRect(selection, 0, 2, 500)
 
-        i++;
-    })
-}
+        var def = Math.floor(selection / 3);
 
-function shouldUseWhiteText(r,g,b){
-    var a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return (a > 0.5);
-}
+        $("#dps-details .dps-data").each(function(){
+            var itemid = $(this).parent().attr("itemid")
+            var parent = $(this).parent()
 
 
-// Calculates DPS from Damage Range, Shot Number, Enemy DEF, and player ATK / DEX.
-function calcAPS(dex, rof){
-    return (1.5 + (6.5 * (dex / 75))) * rof;
-}
+            $(this).html("<span>" + dpsCurves[parent.index()][def] + "DPS <br/> @" + def + "Def </span>");
 
-function calcDamageMod(atk){
-    return 0.5 + (atk / 50)
-}
+            $(this).css("background-color", parent.find(".graphColor").val());
+            var rgb = $(this).css("background-color").match(/\d+/g);
+            var textColor = (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222")
 
-function calcBaseDamage(max, min, def, mod) {
-    var damageRange = [];
-    var baseDamage = 0;
+            $(this).find("span").css("color", textColor);
 
-    if(max != min){
-        for (var i = min; i < max; i++) {
-            var dam = i * mod;
-            var damLessDef = dam - def;
+        })
+    }
 
-            if (damLessDef < i * 0.15) {
-                damLessDef = i * 0.15;
+    function shouldUseWhiteText(r, g, b) {
+        var a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return (a > 0.5);
+    }
+
+
+    // Calculates DPS from Damage Range, Shot Number, Enemy DEF, and player ATK / DEX.
+    function calcAPS(dex, rof) {
+        return (1.5 + (6.5 * (dex / 75))) * rof;
+    }
+
+    function calcDamMod(atk){
+        return 0.5 + (atk / 50);
+    }
+
+    function calcShotDamage(max, min, def, mod) {
+        var damageRange = [];
+        var baseDamage = 0;
+
+        if (max != min) {
+            for (var i = min; i < max; i++) {
+                var dam = i * mod;
+                var damLessDef = dam - def;
+
+                if (damLessDef < i * 0.15) {
+                    damLessDef = i * 0.15;
+                }
+
+                damageRange[i] = damLessDef;
             }
 
-            damageRange[i] = damLessDef;
+            for (var i = min; i < max; i++) {
+                baseDamage += damageRange[i] / (max - min);
+            }
+        } else {
+            baseDamage = (max * mod) - def;
         }
 
-        for (var i = min; i < max; i++) {
-            baseDamage += damageRange[i] / (max - min);
-        }
-    }else{
-        baseDamage = (max*mod)-def;
+        return baseDamage;
     }
 
-    return baseDamage;
-}
+
+
+    return {
+        calculateScale: calculateScale,
+        calcShotDamage: calcShotDamage,
+        calcAttackPerSec: calcAPS
+    }
+
+
+
+}())
