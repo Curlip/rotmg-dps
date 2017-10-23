@@ -40,8 +40,7 @@ const UI = (function() {
             var item = $.grep(DATA.items, function(e) {
                 return e.type == ele.attr("itemid")
             })[0];
-            $(this).toggleClass("selected")
-            trigger("selectionChange", [item, $(this).hasClass("selected")]);
+            trigger("addItem", [item]);
         });
 
         // On search change

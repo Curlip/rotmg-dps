@@ -92,6 +92,13 @@ h4 {
     margin-bottom: 10px;
 }
 
+.close {
+    border-radius: 2px;
+    background-color: #555;
+    color: #eee;
+    padding: 5px;
+}
+
 .modifier {
     display: inline;
     margin: 0;
