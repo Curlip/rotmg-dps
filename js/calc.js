@@ -149,11 +149,12 @@ const DPS_CALC = (function() {
 
             if (weak) atk = 0;
             if (daze) dex = 0;
-            if (berzerk && !daze) aps *= 1.5;
-            if (damaging && !weak) mod *= 1.5;
 
             var aps = calcAPS(dex, rof)
             var mod = calcDamMod(atk)
+
+            if (berzerk && !daze) aps *= 1.5;
+            if (damaging && !weak) mod *= 1.5;
 
             var baseDamage = calcShotDamage(
                 parseInt(this.item.Projectile.MaxDamage),
@@ -272,33 +273,35 @@ const DPS_CALC = (function() {
     }
 
     function calcShotDamage(max, min, def, mod) {
-        var damageRange = [];
-        var baseDamage = 0;
+        var trueDamageAverage = 0;
 
-        if (max != min) {
-            for (var i = min; i < max; i++) {
-                var dam = i * mod;
-                var damLessDef = dam - def;
+        var i = min;
+        var damageAverage = [];
 
-                if (damLessDef < i * 0.15) {
-                    damLessDef = i * 0.15;
-                }
+        do{
+            var dam = i * mod;
+            var damLessDef = dam - def;
 
-                damageRange[i] = damLessDef;
+            if (damLessDef < dam * 0.15) {
+                damLessDef = dam * 0.15;
             }
 
-            for (var i = min; i < max; i++) {
-                baseDamage += damageRange[i] / (max - min);
-            }
-        } else {
-            baseDamage = (max * mod) - def;
+            damageAverage[i] = damLessDef;
 
-            if (baseDamage < baseDamage * 0.15) {
-                baseDamage = baseDamage * 0.15
-            }
+            i++;
         }
+        while(i < max);
 
-        return baseDamage;
+        i = min;
+
+        do{
+            trueDamageAverage += damageAverage[i];
+            i++;
+        }while(i < max);
+
+        trueDamageAverage /= ((max - min)||1);
+
+        return trueDamageAverage;
     }
 
 
