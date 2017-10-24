@@ -94,16 +94,9 @@ const DPS_CALC = (function() {
 
         var me = this;
 
-        me.dom.find(".dps-data").css("background-color", me.dom.find(".graphColor").val())
-        var rgb = me.dom.find(".dps-data").css("background-color").match(/\d+/g);
-        me.dom.find(".dps-data").find("span").css("color", (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222"));
-
         this.dom.find(".graphColor").on("change", function(){
             me.color = $(this).val();
-
-            me.dom.find(".dps-data").css("background-color", me.dom.find(".graphColor").val())
-            var rgb = me.dom.find(".dps-data").css("background-color").match(/\d+/g);
-            me.dom.find(".dps-data").find("span").css("color", (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222"));
+            updateGraph();
         })
 
         function refresh(){
@@ -176,6 +169,9 @@ const DPS_CALC = (function() {
         }
 
         this.dom.find(".dps-data").html("<span>" + this.points[def] + "DPS <br/> @" + def + "Def </span>");
+        this.dom.find(".dps-data").css("background-color", this.dom.find(".graphColor").val())
+        var rgb = this.dom.find(".dps-data").css("background-color").match(/\d+/g);
+        this.dom.find(".dps-data").find("span").css("color", (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222"));
     };
 
     // END HANDLERS
