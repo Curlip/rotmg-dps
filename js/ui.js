@@ -40,7 +40,9 @@ const UI = (function() {
             var item = $.grep(DATA.items, function(e) {
                 return e.type == ele.attr("itemid")
             })[0];
-            trigger("addItem", [item]);
+            trigger((tab) => {
+                tab.itemSelected(item)
+            });
         });
 
         // On search change
@@ -124,41 +126,45 @@ const UI = (function() {
     }
 
     // Handle Events
-    var eventListeners = {}
+    var tabs = []
 
-    function addEventListener(eve, func) {
-        if (!eventListeners[eve]) {
-            eventListeners[eve] = []
-        }
-
-        eventListeners[eve].push(func);
-    }
-
-    function trigger(eve, args) {
-        if (!eventListeners[eve]) {
-            return;
-        }
-
-        for (var i = 0; i < eventListeners[eve].length; i++) {
-            eventListeners[eve][i].apply(this, args);
+    function trigger(func) {
+        for (var i = 0; i < tabs.length; i++) {
+            func(tabs[i])
         }
     }
 
 
+    class Tab {
+        constructor(name, id){
+            this.name = name;
+            this.id = id;
+
+            this.display = $("<div id=\"dps\" class=\"tab\"></div>")
+            this.opener = $("<li><a href=\"#" + id + "\">" + name + "</a></li>")
+        }
+
+        destroy(){
+            this.display.remove();
+            this.opener.remove();
+        }
+
+        itemSelected(item){}
+
+    }
+
+    Tab
 
     return {
-        //List
-        setVisibleItemsFilter: setVisibleItemsFilter, //Accepts Function or Selector
-        setEnabledItemsFilter: setEnabledItemsFilter, //Accepts Function or Selector
+        setVisibleItemsFilter: setVisibleItemsFilter,
+        setEnabledItemsFilter: setEnabledItemsFilter,
 
-        //Tabs
-        //setOpenTab: setOpenTab,    /* TODO */
-        //makeTab: makeTab,          /* TODO */
-
-        //Events
-        on: addEventListener // on([event], [function])
+        Tab: Tab,
+        addTab: function(tab){
+            tabs.push(tab)
+            $("#tabcontrols").append(tab.opener);
+            $("#view").append(tab.display);
+        }
     }
-
-
 
 }())

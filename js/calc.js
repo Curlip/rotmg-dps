@@ -8,174 +8,171 @@ By Curlip
 
 const DPS_CALC = (function() {
 
-    var c;
     var canv;
+    var tab;
 
     var dpsCurves = [];
     var selection;
     var lock = false;
 
     $(document).ready(function() {
-        $("#tabcontrols").prepend("<li><a href=\"#dps\">DPS</a></li>");
+        tab = new UI.Tab("DPS", "dps")
 
-        $("#view").append("\
-        <div id=\"dps\" class=\"tab\">    \
-            <div id=\"graph-wrapper\">     \
-                <canvas width=\"600\" height=\"500\" id=\"graph\"></canvas>    \
+        tab.display.append(
+            "<div id=\"graph-wrapper\">     \
+                <canvas width=\"600\" height=\"500\" id=\"dps-graph\"></canvas>    \
             </div>    \
-            <div id=\"dps-details\"></div>    \
-        </div>")
+            <div id=\"dps-details\"></div>"
+        )
 
-
-
-        c = document.getElementById("graph");
-        canv = c.getContext("2d");
-
-        //Move selection bar on graph.
-        $("#graph").on("mousemove", function(e) {
+        tab.display.find("#dps-graph").on("mousemove", function(e) {
             if (!lock) {
-                var rect = c.getBoundingClientRect();
+                var rect = tab.display.find("#dps-graph")[0].getBoundingClientRect();
                 selection = Math.round(e.clientX - rect.left),
+
                 updateGraph();
             }
         })
 
-        //Lock selection bar on click
-        $("#graph").on("click", function(e) {
+        tab.display.find("#dps-graph").on("click", function(e) {
             lock = !lock;
             updateGraph();
         })
 
+        tab.itemSelected = function(item){
+            var curve = new Curve(item);
+
+            dpsCurves.push(curve);
+            updateGraph();
+        }
+
+        canv = tab.display.find("#dps-graph")[0].getContext("2d");
+
+        UI.addTab(tab)
         updateGraph();
     })
 
-    UI.on("addItem", function(item) {
-        var curve = new Curve(item);
-
-        dpsCurves.push(curve);
-        updateGraph();
-    })
 
 
-    var Curve = function(item){
-        this.item = item
-        this.char = $.grep(DATA.chars, function(obj) {
-            return obj.SlotTypes.split(",")[0] == item.SlotType;
-        })
+    class Curve {
 
-        if (this.char.length == 0)  return;
+        constructor(item){
+            this.item = item
+            this.char = $.grep(DATA.chars, function(obj) {
+                return obj.SlotTypes.split(",")[0] == item.SlotType;
+            })
 
-        this.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+            if (this.char.length == 0)  return;
 
-        this.dom = $(
-            "<div class=\"graphControl\" itemid=\"" + this.item.type + "\">" +
-                "<div class=\"close\">&#10006;</div>                                 \
-                <span>" + this.item.id + "</span>" +
-                "<select class=\"chars\">                                       \
-                </select>                                                       \
-                <div class=\"modifiers\">                                       \
-                    <input class=\"modifier berzerk\" type=\"checkbox\" />      \
-                    <label for=\"berzerk\">Berzerk</label>                      \
-                    <input class=\"modifier damaging\" type=\"checkbox\" />     \
-                    <label for=\"damaging\">Damaging</label>                    \
-                    <input class=\"modifier daze\" type=\"checkbox\" />         \
-                    <label for=\"daze\">Dazed</label>                           \
-                    <input class=\"modifier weak\" type=\"checkbox\" />         \
-                    <label for=\"weak\">Weak</label>                            \
-                    <input class=\"modifier curse\" type=\"checkbox\" />        \
-                    <label for=\"weak\">Cursed</label>                          \
-                </div>                                                          \
-                <input class=\"graphColor\" type=\"color\" value=\"" + this.color + "\" />" +
-                "<div class=\"dps-data\"></div>   \
-            </div>"
-        )
+            this.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
-        $("#dps-details").append(this.dom)
+            this.dom = $(
+                "<div class=\"graphControl\" itemid=\"" + this.item.type + "\">" +
+                    "<div class=\"close\">&#10006;</div>                                 \
+                    <span>" + this.item.id + "</span>" +
+                    "<select class=\"chars\">                                       \
+                    </select>                                                       \
+                    <div class=\"modifiers\">                                       \
+                        <input class=\"modifier berzerk\" type=\"checkbox\" />      \
+                        <label for=\"berzerk\">Berzerk</label>                      \
+                        <input class=\"modifier damaging\" type=\"checkbox\" />     \
+                        <label for=\"damaging\">Damaging</label>                    \
+                        <input class=\"modifier daze\" type=\"checkbox\" />         \
+                        <label for=\"daze\">Dazed</label>                           \
+                        <input class=\"modifier weak\" type=\"checkbox\" />         \
+                        <label for=\"weak\">Weak</label>                            \
+                        <input class=\"modifier curse\" type=\"checkbox\" />        \
+                        <label for=\"weak\">Cursed</label>                          \
+                    </div>                                                          \
+                    <input class=\"graphColor\" type=\"color\" value=\"" + this.color + "\" />" +
+                    "<div class=\"dps-data\"></div>   \
+                </div>"
+            )
 
-        var me = this;
+            $("#dps-details").append(this.dom)
 
-        this.dom.find(".graphColor").on("change", function(){
-            me.color = $(this).val();
-            updateGraph();
-        })
+            var me = this;
 
-        function refresh(){
-            me.recalculateCurve();
-            updateGraph();
+            this.dom.find(".graphColor").on("change", function(){
+                me.color = $(this).val();
+                updateGraph();
+            })
+
+            function refresh(){
+                me.recalculateCurve();
+                updateGraph();
+            }
+
+            this.dom.find(".modifiers").on("change", refresh)
+            this.dom.find(".chars").on("change", refresh)
+
+            this.dom.find(".close").on("click", function(){
+                $(this).parent().remove();
+                dpsCurves.splice(dpsCurves.indexOf(me),1);
+                updateGraph();
+            })
+
+            for (var i = 0; i < this.char.length; i++) {
+                this.dom.find(".chars").append("<option>" + this.char[i].id + "</option>")
+            }
+
+            this.recalculateCurve()
         }
 
-        this.dom.find(".modifiers").on("change", refresh)
-        this.dom.find(".chars").on("change", refresh)
+        recalculateCurve() {
+            var charName = this.dom.find(".chars").val();
+            var char = $.grep(DATA.chars, function(obj) {
+                return obj.id == charName;
+            })[0];
 
-        this.dom.find(".close").on("click", function(){
-            $(this).parent().remove();
-            dpsCurves.splice(dpsCurves.indexOf(me),1);
-            updateGraph();
-        })
+            var weak = this.dom.find(".weak").is(":checked");
+            var daze = this.dom.find(".daze").is(":checked");
+            var berzerk = this.dom.find(".berzerk").is(":checked");
+            var damaging = this.dom.find(".damaging").is(":checked");
+            var curse = this.dom.find(".curse").is(":checked");
 
-        for (var i = 0; i < this.char.length; i++) {
-            this.dom.find(".chars").append("<option>" + this.char[i].id + "</option>")
+            this.points = [];
+
+            for (var x = 0; x < 201; x++) {
+                var rof = this.item.RateOfFire;
+                var atk = parseInt(char.Attack.max);
+                var dex = parseInt(char.Dexterity.max);
+                var shots = (this.item.NumProjectiles ? this.item.NumProjectiles : 1);
+
+                if (weak) atk = 0;
+                if (daze) dex = 0;
+
+                var aps = calcAPS(dex, rof)
+                var mod = calcDamMod(atk)
+
+                if (berzerk && !daze) aps *= 1.5;
+                if (damaging && !weak) mod *= 1.5;
+
+                var baseDamage = calcShotDamage(
+                    parseInt(this.item.Projectile.MaxDamage),
+                    parseInt(this.item.Projectile.MinDamage),
+                    (this.item.Projectile.ArmorPiercing != "" ? x : 0),
+                    mod
+                );
+
+                var dps = aps * baseDamage * shots;
+                if (curse) dps *= 1.2;
+
+                this.points[x] = Math.round(dps);
+            }
         }
 
-        this.recalculateCurve()
+        displayDPS(def) {
+            if(!def){
+                def = 0;
+            }
+
+            this.dom.find(".dps-data").html("<span>" + this.points[def] + "DPS <br/> @" + def + "Def </span>");
+            this.dom.find(".dps-data").css("background-color", this.dom.find(".graphColor").val())
+            var rgb = this.dom.find(".dps-data").css("background-color").match(/\d+/g);
+            this.dom.find(".dps-data").find("span").css("color", (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222"));
+        };
     }
-
-    Curve.prototype.recalculateCurve = function () {
-        var charName = this.dom.find(".chars").val();
-        var char = $.grep(DATA.chars, function(obj) {
-            return obj.id == charName;
-        })[0];
-
-        var weak = this.dom.find(".weak").is(":checked");
-        var daze = this.dom.find(".daze").is(":checked");
-        var berzerk = this.dom.find(".berzerk").is(":checked");
-        var damaging = this.dom.find(".damaging").is(":checked");
-        var curse = this.dom.find(".curse").is(":checked");
-
-        this.points = [];
-
-        for (var x = 0; x < 201; x++) {
-            var rof = this.item.RateOfFire;
-            var atk = parseInt(char.Attack.max);
-            var dex = parseInt(char.Dexterity.max);
-            var shots = (this.item.NumProjectiles ? this.item.NumProjectiles : 1);
-
-            if (weak) atk = 0;
-            if (daze) dex = 0;
-
-            var aps = calcAPS(dex, rof)
-            var mod = calcDamMod(atk)
-
-            if (berzerk && !daze) aps *= 1.5;
-            if (damaging && !weak) mod *= 1.5;
-
-            var baseDamage = calcShotDamage(
-                parseInt(this.item.Projectile.MaxDamage),
-                parseInt(this.item.Projectile.MinDamage),
-                (this.item.Projectile.ArmorPiercing != "" ? x : 0),
-                mod
-            );
-
-            var dps = aps * baseDamage * shots;
-            if (curse) dps *= 1.2;
-
-            this.points[x] = Math.round(dps);
-        }
-    }
-
-    Curve.prototype.displayDPS = function (def) {
-        if(!def){
-            def = 0;
-        }
-
-        this.dom.find(".dps-data").html("<span>" + this.points[def] + "DPS <br/> @" + def + "Def </span>");
-        this.dom.find(".dps-data").css("background-color", this.dom.find(".graphColor").val())
-        var rgb = this.dom.find(".dps-data").css("background-color").match(/\d+/g);
-        this.dom.find(".dps-data").find("span").css("color", (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222"));
-    };
-
-    // END HANDLERS
-
 
     function calculateScale(curves){
         var scale = 500;
@@ -211,7 +208,7 @@ const DPS_CALC = (function() {
 
 
     function updateGraph(){
-        canv.clearRect(0, 0, c.width, c.height);
+        canv.clearRect(0, 0, tab.display.find("#dps-graph")[0].width, tab.display.find("#dps-graph")[0].height);
 
         var scale = calculateScale(dpsCurves);
 
