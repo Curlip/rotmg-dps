@@ -48,8 +48,17 @@ const UI = (function() {
         // On search change
         $('#search').on('input propertychange paste', function() {
             var search = ":Contains(" + $("input#search").val() + ")"
-            visFilters["search"] = search;
-            filter();
+            $(".itemtag").show()
+            $(".slottype").show()
+            $(".itemtag").filter(":not(" + search + ")").hide();
+
+            $(".slottype").each(function(){
+                console.log($(this).find('*:visible').length);
+
+                if($(this).find('*:visible').length <= 1){
+                    $(this).hide();
+                }
+            })
         });
 
         // Make view into tabs
@@ -67,63 +76,6 @@ const UI = (function() {
     });
 
 
-    function setEnabledItemsFilter(filter) {
-        if (typeof filter == "function") {
-
-            $(".itemtag").each(function() {
-                $(this).removeClass("disabled")
-
-                if (!filter($(this))) {
-                    $(this).addClass("disabled")
-                }
-            })
-
-        } else {
-
-            $(".itemtag").each(function() {
-                $(this).removeClass("disabled")
-
-                if (!$(this).is(filter)) {
-                    $(this).addClass("disabled")
-                }
-            })
-
-        }
-    }
-
-    var visFilters = {};
-
-    function setVisibleItemsFilter(newfilter) {
-        visFilter["external"] = newfilter;
-        filter();
-    }
-
-    function filter() {
-        $(".itemtag").each(function() {
-            var search = $(this).is(visFilters["search"])
-            var extern;
-
-
-            if (typeof visFilters["external"] == "function") {
-                extern = visFilters["external"]($(this));
-            } else {
-                extern = $(this).is(visFilters["external"]);
-            }
-
-            $(this).show();
-
-            if (!(search && external)) {
-                $(this).hide();
-            }
-        })
-
-        $(".slottype").each(function(i, ele) {
-            $(this).show();
-            if (!$(this).children(':visible').length > 1) {
-                $(this).hide();
-            }
-        })
-    }
 
     // Handle Events
     var tabs = []
@@ -156,9 +108,6 @@ const UI = (function() {
     Tab
 
     return {
-        setVisibleItemsFilter: setVisibleItemsFilter,
-        setEnabledItemsFilter: setEnabledItemsFilter,
-
         Tab: Tab,
         addTab: function(tab){
             tabs.push(tab)
