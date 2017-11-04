@@ -66,23 +66,25 @@ const DPS_CALC = (function() {
 
             this.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
+            var uid = Math.round(Math.random() * 9999);
+
             this.dom = $(
                 "<div class=\"graphControl\" itemid=\"" + this.item.type + "\">" +
                     "<div class=\"close\">&#10006;</div>                                 \
-                    <span>" + this.item.id + "</span>" +
+                    <span>" + this.item.id + "</span><br />" +
                     "<select class=\"chars\">                                       \
                     </select>                                                       \
                     <div class=\"modifiers\">                                       \
-                        <input class=\"modifier berzerk\" type=\"checkbox\" />      \
-                        <label for=\"berzerk\">Berzerk</label>                      \
-                        <input class=\"modifier damaging\" type=\"checkbox\" />     \
-                        <label for=\"damaging\">Damaging</label>                    \
-                        <input class=\"modifier daze\" type=\"checkbox\" />         \
-                        <label for=\"daze\">Dazed</label>                           \
-                        <input class=\"modifier weak\" type=\"checkbox\" />         \
-                        <label for=\"weak\">Weak</label>                            \
-                        <input class=\"modifier curse\" type=\"checkbox\" />        \
-                        <label for=\"weak\">Cursed</label>                          \
+                        <input id=\"berzerk" + uid +"\" class=\"berzerk\" type=\"checkbox\" />      \
+                        <label for=\"berzerk" + uid +"\" class=\"berzerk\"></label>                      \
+                        <input id=\"damaging" + uid +"\" class=\"damaging\" type=\"checkbox\" />     \
+                        <label for=\"damaging" + uid +"\" class=\"damaging\"></label>                    \
+                        <input id=\"daze" + uid +"\" class=\"daze\" type=\"checkbox\" />         \
+                        <label for=\"daze" + uid +"\" class=\"daze\"></label>                           \
+                        <input id=\"weak" + uid +"\" class=\"weak\" type=\"checkbox\" />         \
+                        <label for=\"weak" + uid +"\" class=\"weak\"></label>                            \
+                        <input id=\"curse" + uid +"\" class=\"curse\" type=\"checkbox\" />        \
+                        <label for=\"curse" + uid +"\" class=\"curse\"></label>                          \
                     </div>                                                          \
                     <input class=\"graphColor\" type=\"color\" value=\"" + this.color + "\" />" +
                     "<div class=\"dps-data\"></div>   \
@@ -167,7 +169,7 @@ const DPS_CALC = (function() {
                 def = 0;
             }
 
-            this.dom.find(".dps-data").html("<span>" + this.points[def] + "DPS <br/> @" + def + "Def </span>");
+            this.dom.find(".dps-data").html("<span>" + this.points[def] + "DPS @ " + def + "Def </span>");
             this.dom.find(".dps-data").css("background-color", this.dom.find(".graphColor").val())
             var rgb = this.dom.find(".dps-data").css("background-color").match(/\d+/g);
             this.dom.find(".dps-data").find("span").css("color", (shouldUseWhiteText(rgb[0], rgb[1], rgb[2]) ? "#D9D9D9" : "#222"));

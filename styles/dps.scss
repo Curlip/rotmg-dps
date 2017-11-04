@@ -1,0 +1,133 @@
+
+$light: #434343;
+$mid: #3b3b3b;
+$dark: #2d2d2d;
+$border: #222;
+
+$rounding: 2px;
+
+#dps {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    max-height: 90vh;
+}
+
+#graph-wrapper {
+    display: block;
+    width: max-content;
+    margin: 20px;
+}
+
+#dps-graph {
+    border: 1px solid $border;
+}
+
+#dps-details {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 2;
+
+    overflow: auto;
+    padding: 20px;
+}
+
+.graphControl {
+    background-color: $dark;
+    position: relative;
+    overflow: hidden;
+
+    border-radius: $rounding;
+    margin: 5px;
+    padding: 5px;
+    padding-bottom: 30px;
+
+    * {
+        display: inline;
+    }
+
+    .close {
+        position: absolute;
+        top: 2px;
+        left: 4px;
+    }
+
+    span {
+        text-align: center;
+        display: block;
+        width: 100%;
+    }
+
+    .dps-data {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        text-align: center;
+        padding: 3px;
+    }
+
+    .modifiers {
+        display: inline-flex;
+        align-items: center;
+
+        position: relative;
+
+        top: 3px;
+
+        *[type=checkbox]{
+            display: none;
+        }
+
+        input[type=checkbox] + label {
+            content: none;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+        }
+
+        input[type=checkbox] + .berzerk {
+            background-image: url("img/Berserk_grey.png");
+        }
+
+        input[type=checkbox]:checked + .berzerk {
+            background-image: url("img/Berserk.png");
+        }
+
+        input[type=checkbox] + .curse {
+            background-image: url("img/Curse_grey.png");
+        }
+
+        input[type=checkbox]:checked + .curse {
+            background-image: url("img/Curse.png");
+        }
+
+        input[type=checkbox] + .damaging {
+            background-image: url("img/Damaging_grey.png");
+        }
+
+        input[type=checkbox]:checked + .damaging {
+            background-image: url("img/Damaging.png");
+        }
+
+        input[type=checkbox] + .daze {
+            width: 20px;
+            background-image: url("img/Dazed_grey.png");
+        }
+
+        input[type=checkbox]:checked + .daze {
+            background-image: url("img/Dazed.png");
+        }
+
+        input[type=checkbox] + .weak {
+            background-image: url("img/Weak_grey.png");
+        }
+
+        input[type=checkbox]:checked + .weak {
+            background-image: url("img/Weak.png");
+        }
+    }
+}
