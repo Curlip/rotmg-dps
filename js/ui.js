@@ -60,11 +60,6 @@ const UI = (function() {
                 }
             })
         });
-
-        // Make view into tabs
-        $("#view").tabs({
-            active: 0,
-        });
     });
 
     $(document).ready(function() {
@@ -111,7 +106,6 @@ const UI = (function() {
         Tab: Tab,
         addTab: function(tab){
             tabs.push(tab)
-            $("#tabcontrols").append(tab.opener);
             $("#view").append(tab.display);
         }
     }
