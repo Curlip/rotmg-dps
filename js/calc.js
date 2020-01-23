@@ -7,55 +7,38 @@ By Curlip
 */
 
 const DPS_CALC = (async function() {
-
     var chars = await DATA.chars
     var items = await DATA.items
 
-    var canv;
-    var tab;
 
     var dpsCurves = [];
     var selection;
     var lock = false;
 
-    $(document).ready(function() {
-        tab = new UI.Tab("DPS", "dps")
+    var $graph = $("#dps-graph");
+    var canv = $graph[0].getContext("2d");
 
-        tab.display.append(
-            "<div id=\"graph-wrapper\">     \
-                <canvas width=\"600\" height=\"500\" id=\"dps-graph\"></canvas>    \
-            </div>    \
-            <div id=\"dps-details\"></div>"
-        )
+    $(document).ready(updateGraph);
 
-        tab.display.find("#dps-graph").on("mousemove", function(e) {
-            if (!lock) {
-                var rect = tab.display.find("#dps-graph")[0].getBoundingClientRect();
-                selection = Math.round(e.clientX - rect.left),
-
-                updateGraph();
-            }
-        })
-
-        tab.display.find("#dps-graph").on("click", function(e) {
-            lock = !lock;
-            updateGraph();
-        })
-
-        tab.itemSelected = function(item){
-            var curve = new Curve(item);
-
-            dpsCurves.push(curve);
-            updateGraph();
-        }
-
-        canv = tab.display.find("#dps-graph")[0].getContext("2d");
-
-        UI.addTab(tab)
+    $(document).on("item:selected", function(e, item){
+        var curve = new Curve(item);
+        dpsCurves.push(curve);
         updateGraph();
     })
 
 
+    $graph.on("mousemove", function(e) {
+        if(lock) return;
+
+        var rect = $graph[0].getBoundingClientRect();
+        selection = Math.round(e.clientX - rect.left),
+            updateGraph();
+    })
+
+    $graph.on("click", function(e) {
+        lock = !lock;
+        updateGraph();
+    })
 
     class Curve {
 
@@ -64,7 +47,7 @@ const DPS_CALC = (async function() {
             this.char = $.grep(chars, function(obj) {
                 return obj.SlotTypes.split(",")[0] == item.SlotType;
             })
-            
+
             console.log(this.item)
 
             if (this.char.length == 0)  return;
@@ -75,9 +58,9 @@ const DPS_CALC = (async function() {
 
             this.dom = $(
                 "<div class=\"graphControl\" itemid=\"" + this.item.type + "\">" +
-                    "<div class=\"close\">&#10006;</div>                                 \
+                "<div class=\"close\">&#10006;</div>                                 \
                     <span>" + this.item.id + "</span><br />" +
-                    "<select class=\"chars\">                                       \
+                "<select class=\"chars\">                                       \
                     </select>                                                       \
                     <div class=\"modifiers\">                                       \
                         <input id=\"berzerk" + uid +"\" class=\"berzerk\" type=\"checkbox\" />      \
@@ -92,7 +75,7 @@ const DPS_CALC = (async function() {
                         <label for=\"curse" + uid +"\" class=\"curse\"></label>                          \
                     </div>                                                          \
                     <input class=\"graphColor\" type=\"color\" value=\"" + this.color + "\" />" +
-                    "<div class=\"dps-data\"></div>   \
+                "<div class=\"dps-data\"></div>   \
                 </div>"
             )
 
@@ -215,7 +198,7 @@ const DPS_CALC = (async function() {
 
 
     function updateGraph(){
-        canv.clearRect(0, 0, tab.display.find("#dps-graph")[0].width, tab.display.find("#dps-graph")[0].height);
+        canv.clearRect(0, 0, $graph[0].width, $graph[0].height);
 
         var scale = calculateScale(dpsCurves);
 

@@ -42,9 +42,8 @@ const UI = (function() {
             var item = $.grep(items, function(e) {
                 return e.type == ele.attr("itemid")
             })[0];
-            trigger((tab) => {
-                tab.itemSelected(item)
-            });
+
+            $(document).trigger("item:selected", [item])
         });
 
         // On search change
@@ -71,45 +70,4 @@ const UI = (function() {
             };
         });
     });
-
-
-
-    // Handle Events
-    var tabs = []
-
-    function trigger(func) {
-        for (var i = 0; i < tabs.length; i++) {
-            func(tabs[i])
-        }
-    }
-
-
-    class Tab {
-        constructor(name, id){
-            this.name = name;
-            this.id = id;
-
-            this.display = $("<div id=\"dps\" class=\"tab\"></div>")
-            this.opener = $("<li><a href=\"#" + id + "\">" + name + "</a></li>")
-        }
-
-        destroy(){
-            this.display.remove();
-            this.opener.remove();
-        }
-
-        itemSelected(item){}
-
-    }
-
-    Tab
-
-    return {
-        Tab: Tab,
-        addTab: function(tab){
-            tabs.push(tab)
-            $("#view").append(tab.display);
-        }
-    }
-
 }())

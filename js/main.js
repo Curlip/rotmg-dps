@@ -38,7 +38,6 @@ const DATA = (function(){
         items: items,                       
         chars: chars,
     }
-
 }());
 
 $(document).ready(function() {
