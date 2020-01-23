@@ -6,7 +6,10 @@ By Curlip
 
 */
 
-const DPS_CALC = (function() {
+const DPS_CALC = (async function() {
+
+    var chars = await DATA.chars
+    var items = await DATA.items
 
     var canv;
     var tab;
@@ -58,9 +61,11 @@ const DPS_CALC = (function() {
 
         constructor(item){
             this.item = item
-            this.char = $.grep(DATA.chars, function(obj) {
+            this.char = $.grep(chars, function(obj) {
                 return obj.SlotTypes.split(",")[0] == item.SlotType;
             })
+            
+            console.log(this.item)
 
             if (this.char.length == 0)  return;
 
@@ -123,7 +128,7 @@ const DPS_CALC = (function() {
 
         recalculateCurve() {
             var charName = this.dom.find(".chars").val();
-            var char = $.grep(DATA.chars, function(obj) {
+            var char = $.grep(chars, function(obj) {
                 return obj.id == charName;
             })[0];
 

@@ -8,12 +8,14 @@
 
 const UI = (function() {
 
-    DATA.onReady(function() {
+    Promise.all([DATA.chars, DATA.items]).then(function(res){
+
+        var chars = res[0]
+        var items = res[1]
+
 
         //Loop over items and create buttons in list
-        for (var i = 0; i < DATA.items.length; i++) {
-            var item = DATA.items[i];
-
+        for(var item of items){
             if (!$(".slottype#slot" + item.SlotType).length) {
                 $("#list").append("   \
                     <div class=\"slottype\" id=\"slot" + item.SlotType + "\">   \
@@ -37,7 +39,7 @@ const UI = (function() {
         /* On selection change */
         $("#list").on("click", ".itemtag", function() {
             var ele = $(this)
-            var item = $.grep(DATA.items, function(e) {
+            var item = $.grep(items, function(e) {
                 return e.type == ele.attr("itemid")
             })[0];
             trigger((tab) => {

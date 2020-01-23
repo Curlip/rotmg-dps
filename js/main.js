@@ -8,52 +8,43 @@
 */
 
 const DATA = (function(){
-
     var URL1 = (getURLParameter("mode") == "testing" ? "https://static.drips.pw/rotmg/testing/current" : "https://static.drips.pw/rotmg/production/current");
-    var items = [];
-    var chars = [];
 
-    var readyListener = [];
 
-    function addReadyListener(func){
-        readyListener.push(func);
-    }
+    var objects = new Promise(function(resolve, reject){
+        $(document).ready(function() {
+            $.getJSON(URL1 + "/json/Objects.json", function(res) {
+                resolve(res.Object)
+            })
+        })
+    })
 
-    $(document).ready(function() {
-        jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
-            return function(elem) {
-                return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-            };
-        });
+    var items = new Promise(async function(resolve, reject){
+        resolve( (await objects).filter(object => object.Class == "Equipment") )
+    })
 
-        $.getJSON(URL1 + "/json/Objects.json", function(res) {
-            // Load Character and Item Data into 'chars' and 'main'
-            for (i = 0; i < res.Object.length; i++) {
-                if (res.Object[i].Class == "Equipment") {
-                    items.push(res.Object[i]);
-                }
-                if (res.Object[i].Class == "Player") {
-                    chars.push(res.Object[i]);
-                }
-            }
+    var chars = new Promise(async function(resolve, reject){
+        resolve( (await objects).filter(object => object.Class == "Player") )
+    })
 
-            // Run functions waitinf for load
-            for(var i = 0; i<readyListener.length; i++){
-                readyListener[i]();
-            }
-        });
-    });
+
 
     function getURLParameter(name) {
       return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     }
 
-
-
     return {
+        objects: objects,
         items: items,                       
         chars: chars,
-        onReady: addReadyListener
     }
 
 }());
+
+$(document).ready(function() {
+    jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
+        return function(elem) {
+            return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        };
+    });
+});
