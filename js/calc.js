@@ -48,36 +48,18 @@ const DPS_CALC = (async function() {
                 return obj.SlotTypes.split(",")[0] == item.SlotType;
             })
 
-            console.log(this.item)
-
             if (this.char.length == 0)  return;
 
             this.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
-            var uid = Math.round(Math.random() * 9999);
+            var template = document.getElementById("control-template").innerHTML
+            var control_markup = Mustache.render(template, {
+                item: this.item, 
+                uid: Math.round(Math.random() * 9999),
+                color:this.color
+            })
 
-            this.dom = $(
-                "<div class=\"graphControl\" itemid=\"" + this.item.type + "\">" +
-                "<div class=\"close\">&#10006;</div>                                 \
-                    <span>" + this.item.id + "</span><br />" +
-                "<select class=\"chars\">                                       \
-                    </select>                                                       \
-                    <div class=\"modifiers\">                                       \
-                        <input id=\"berzerk" + uid +"\" class=\"berzerk\" type=\"checkbox\" />      \
-                        <label for=\"berzerk" + uid +"\" class=\"berzerk\"></label>                      \
-                        <input id=\"damaging" + uid +"\" class=\"damaging\" type=\"checkbox\" />     \
-                        <label for=\"damaging" + uid +"\" class=\"damaging\"></label>                    \
-                        <input id=\"daze" + uid +"\" class=\"daze\" type=\"checkbox\" />         \
-                        <label for=\"daze" + uid +"\" class=\"daze\"></label>                           \
-                        <input id=\"weak" + uid +"\" class=\"weak\" type=\"checkbox\" />         \
-                        <label for=\"weak" + uid +"\" class=\"weak\"></label>                            \
-                        <input id=\"curse" + uid +"\" class=\"curse\" type=\"checkbox\" />        \
-                        <label for=\"curse" + uid +"\" class=\"curse\"></label>                          \
-                    </div>                                                          \
-                    <input class=\"graphColor\" type=\"color\" value=\"" + this.color + "\" />" +
-                "<div class=\"dps-data\"></div>   \
-                </div>"
-            )
+            this.dom = $(control_markup)
 
             $("#dps-details").append(this.dom)
 

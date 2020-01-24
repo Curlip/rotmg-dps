@@ -36,9 +36,35 @@
             </div>
         </div>
 
+        <script id="control-template" type="x-tmpl-mustache">
+        
+            <div class="graphControl" itemid="{{item.type}}">
+                <div class="close">&#10006;</div>        
+                <span> {{item.id}} </span><br/>
+                <select class="chars">               
+                    </select>                             
+                    <div class="modifiers">            
+                        <input id="berzerk {{uid}}" class="berzerk" type="checkbox" />      
+                        <label for="berzerk {{uid}}" class="berzerk"></label>                      
+                        <input id="damaging {{uid}}" class="damaging" type="checkbox" />     
+                        <label for="damaging {{uid}}" class="damaging"></label>                    
+                        <input id="daze {{uid}}" class="daze" type="checkbox" />         
+                        <label for="daze {{uid}}" class="daze"></label>                           
+                        <input id="weak {{uid}}" class="weak" type="checkbox" />         
+                        <label for="weak {{uid}}" class="weak"></label>                            
+                        <input id="curse {{uid}}" class="curse" type="checkbox" />        
+                        <label for="curse {{uid}}" class="curse"></label>                          
+                    </div>                                                     
+                    <input class="graphColor" type="color" value="{{color}}" />
+                <div class="dps-data"></div>
+            </div>"
+
+        </script>
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+        <script src="https://unpkg.com/mustache@latest"></script>
         <script src="./js/main.js"></script>
         <script src="./js/ids.js"></script>
         <script src="./js/ui.js"></script>
