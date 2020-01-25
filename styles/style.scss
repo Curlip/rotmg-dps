@@ -30,7 +30,7 @@ body {
     #list {
         margin: 10px;
 
-        .slottype {
+        .slot {
             h4 {
                 text-align: center;
 
@@ -40,7 +40,7 @@ body {
                 border-bottom: 1px solid #ddd;
             }
 
-            .itemtag {
+            .weapon {
                 display: block;
                 width: 100%;
                 background-color: $mid;
@@ -78,54 +78,3 @@ body {
     }
 }
 
-#tabcontrols {
-    background-color: $dark;
-    height: 50px;
-
-    display: flex;
-    align-items: flex-end;
-
-    .ui-tabs-tab {
-        height: 30px;
-        min-width: 50px;
-        display: inline-block;
-
-        background-color: $background;
-
-        margin: 0 1px;
-        border-radius: 5px 5px 0 0;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        outline: none;
-
-        &::before {
-            content: none;
-        }
-
-        &:hover {
-            height: 32px;
-        }
-
-        * {
-            text-decoration: none;
-        }
-    }
-
-    .ui-tabs-active {
-        height: 35px;
-
-        &:hover {
-            height: 35px;
-        }
-    }
-}
-
-#info-wrapper {
-    max-width: 720px;
-    padding: 20px;
-    margin: 0 auto;
-    margin-top: 20px;
-}

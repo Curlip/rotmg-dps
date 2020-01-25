@@ -7,8 +7,8 @@ By Curlip
 */
 
 const DPS_CALC = (async function() {
-    var chars = await DATA.chars
-    var items = await DATA.items
+    var chars = await DATA.CLASSES
+    var items = await DATA.WEAPONS
 
 
     var dpsCurves = [];
@@ -17,6 +17,12 @@ const DPS_CALC = (async function() {
 
     var $graph = $("#dps-graph");
     var canv = $graph[0].getContext("2d");
+
+
+
+    var template = document.getElementById("control-template").innerHTML
+    Mustache.parse(template)
+
 
     $(document).ready(updateGraph);
 
@@ -52,7 +58,6 @@ const DPS_CALC = (async function() {
 
             this.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
-            var template = document.getElementById("control-template").innerHTML
             var control_markup = Mustache.render(template, {
                 item: this.item, 
                 uid: Math.round(Math.random() * 9999),

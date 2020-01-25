@@ -6,6 +6,11 @@
         <link rel="stylesheet" type="text/css" href="./styles/reset.css">
         <link rel="stylesheet" type="text/css" href="./styles/style.css">
         <link rel="stylesheet" type="text/css" href="./styles/dps.css">
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+        <script src="https://unpkg.com/mustache@latest"></script>
     </head>
     <body>
         <div id="wrapper">
@@ -61,11 +66,41 @@
 
         </script>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
-        <script src="https://unpkg.com/mustache@latest"></script>
-        <script src="./js/main.js"></script>
+
+        <script id="slot-template" type="x-tmpl-mustache">
+
+            <div class="slot" id="slot{{slot}}">
+                <h4>Slot {{slot}}</h4>
+            </div>
+
+        </script>
+
+
+        <script id="weapon-template" type="x-tmpl-mustache">
+
+            <div class="weapon" itemid="{{id}}">{{name}}</div>
+
+        </script>
+
+
+
+
+        <script>
+            function getURLParameter(name) {
+                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+            }
+
+            // Search function for items menu
+            $(document).ready(function() {
+                jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
+                    return function(elem) {
+                        return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+                    };
+                });
+            });
+        </script>
+
+        <script src="./js/data.js"></script>
         <script src="./js/ids.js"></script>
         <script src="./js/ui.js"></script>
         <script src="./js/calc.js"></script>

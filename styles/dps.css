@@ -1,1 +1,104 @@
-#dps{position:relative;display:flex;flex-direction:column;align-items:center;max-height:90vh}#graph-wrapper{display:block;width:max-content;margin:20px}#dps-graph{border:1px solid #222}#dps-details{display:flex;flex-wrap:wrap;flex-grow:2;overflow:auto;padding:20px}.graphControl{background-color:#2d2d2d;position:relative;overflow:hidden;border-radius:2px;margin:5px;padding:5px;padding-bottom:30px}.graphControl *{display:inline}.graphControl .close{position:absolute;top:2px;left:4px}.graphControl span{text-align:center;display:block;width:100%}.graphControl .dps-data{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:3px}.graphControl .modifiers{display:inline-flex;align-items:center;position:relative;top:3px}.graphControl .modifiers *[type=checkbox]{display:none}.graphControl .modifiers input[type=checkbox]+label{content:none;display:inline-block;width:18px;height:18px}.graphControl .modifiers input[type=checkbox]+.berzerk{background-image:url("img/Berserk_grey.png")}.graphControl .modifiers input[type=checkbox]:checked+.berzerk{background-image:url("img/Berserk.png")}.graphControl .modifiers input[type=checkbox]+.curse{background-image:url("img/Curse_grey.png")}.graphControl .modifiers input[type=checkbox]:checked+.curse{background-image:url("img/Curse.png")}.graphControl .modifiers input[type=checkbox]+.damaging{background-image:url("img/Damaging_grey.png")}.graphControl .modifiers input[type=checkbox]:checked+.damaging{background-image:url("img/Damaging.png")}.graphControl .modifiers input[type=checkbox]+.daze{width:20px;background-image:url("img/Dazed_grey.png")}.graphControl .modifiers input[type=checkbox]:checked+.daze{background-image:url("img/Dazed.png")}.graphControl .modifiers input[type=checkbox]+.weak{background-image:url("img/Weak_grey.png")}.graphControl .modifiers input[type=checkbox]:checked+.weak{background-image:url("img/Weak.png")}
+#dps {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 90vh;
+}
+
+#graph-wrapper {
+  display: block;
+  width: max-content;
+  margin: 20px;
+}
+
+#dps-graph {
+  border: 1px solid #222;
+}
+
+#dps-details {
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 2;
+  overflow: auto;
+  padding: 20px;
+}
+
+.graphControl {
+  background-color: #2d2d2d;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  margin: 5px;
+  padding: 5px;
+  padding-bottom: 30px;
+}
+.graphControl * {
+  display: inline;
+}
+.graphControl .close {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+}
+.graphControl span {
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+.graphControl .dps-data {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 3px;
+}
+.graphControl .modifiers {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  top: 3px;
+}
+.graphControl .modifiers *[type=checkbox] {
+  display: none;
+}
+.graphControl .modifiers input[type=checkbox] + label {
+  content: none;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+.graphControl .modifiers input[type=checkbox] + .berzerk {
+  background-image: url("img/Berserk_grey.png");
+}
+.graphControl .modifiers input[type=checkbox]:checked + .berzerk {
+  background-image: url("img/Berserk.png");
+}
+.graphControl .modifiers input[type=checkbox] + .curse {
+  background-image: url("img/Curse_grey.png");
+}
+.graphControl .modifiers input[type=checkbox]:checked + .curse {
+  background-image: url("img/Curse.png");
+}
+.graphControl .modifiers input[type=checkbox] + .damaging {
+  background-image: url("img/Damaging_grey.png");
+}
+.graphControl .modifiers input[type=checkbox]:checked + .damaging {
+  background-image: url("img/Damaging.png");
+}
+.graphControl .modifiers input[type=checkbox] + .daze {
+  width: 20px;
+  background-image: url("img/Dazed_grey.png");
+}
+.graphControl .modifiers input[type=checkbox]:checked + .daze {
+  background-image: url("img/Dazed.png");
+}
+.graphControl .modifiers input[type=checkbox] + .weak {
+  background-image: url("img/Weak_grey.png");
+}
+.graphControl .modifiers input[type=checkbox]:checked + .weak {
+  background-image: url("img/Weak.png");
+}
+
+/*# sourceMappingURL=dps.css.map */
